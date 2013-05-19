@@ -48,24 +48,24 @@ class MyOnlineDecoder
 		// Read from buf
 		void read_frm_buf(uint8_t *data,bool incr,FILE* fp);
 
-    // set 1s for the bit length of l
-    int set_1s_for(int l);
+    		// set 1s for the bit length of l
+    		int set_1s_for(int l);
 
 
 	private:
 		int count;
-    long long prevNum;
+    		long long prevNum;
 		int num2_len;
-	  struct timeval startTime;
-  	struct timeval endTime;
-  	double tS,tE,time;
-  	double total_time;
+		struct timeval startTime;
+  		struct timeval endTime;
+  		double tS,tE,time;
+  		double total_time;
 
 		double t[SIZE];
-  	long size;
+  		long size;
 
-    int bitPtr,bytePtr;
-    uint8_t buf[BUF_SZ];
+    		int bitPtr,bytePtr;
+    		uint8_t buf[BUF_SZ];
 
 };
 
@@ -109,17 +109,17 @@ char* MyOnlineDecoder::convert2str(long long num){
 }
 
 double MyOnlineDecoder::get_std_dev(){
-	// Caluclation of Standard Deviation  
-	double avg_time,mean,sum_of_diff,variance,std_dev;
-  avg_time = mean = total_time/get_count();
+  	// Caluclation of Standard Deviation  
+  	double avg_time,mean,sum_of_diff,variance,std_dev;
+  	avg_time = mean = total_time/get_count();
 
-  for(int i=0;i<size;i++)
-    sum_of_diff += (t[i]-mean)*(t[i]-mean);
+  	for(int i=0;i<size;i++)
+    		sum_of_diff += (t[i]-mean)*(t[i]-mean);
 
-  variance = sum_of_diff/(get_count()-1);
-  std_dev = sqrt(variance);
+  	variance = sum_of_diff/(get_count()-1);
+  	std_dev = sqrt(variance);
 
-	return std_dev;
+ 	return std_dev;
 }
 
 // get the next coded num from the binary file
@@ -137,10 +137,10 @@ int MyOnlineDecoder::getCodeType(FILE* fp){
 	if(bitPtr==0)
 		read_frm_buf(&header,true,fp);
 	else{
-    uint8_t head1,head2;
-    read_frm_buf(&head1,true,fp);
-    read_frm_buf(&head2,false,fp);
-	  header = head1<<bitPtr | head2>>(8-bitPtr);
+    		uint8_t head1,head2;
+    		read_frm_buf(&head1,true,fp);
+    		read_frm_buf(&head2,false,fp);
+	  	header = head1<<bitPtr | head2>>(8-bitPtr);
 	}
   return header;
 }
@@ -155,14 +155,14 @@ void MyOnlineDecoder::parseAndDecode(FILE* input_file_,FILE* output_file_){
 	int num1,num2;
 	int x;
   while(1){ 
-			if(count>=SIZE)
-				break;
-			count++;
-			gettimeofday(&startTime, NULL);   // get the start time
-			char *stuffed;
-			// If it's the first coded timestamp, then it does no decoding, i.e decodes 
-			// as 'num1.num2' (as it is)
-			// Would store prevNum1 = num1 & prevNum2 = num2
+	if(count>=SIZE)
+		break;
+	count++;
+	gettimeofday(&startTime, NULL);   // get the start time
+	char *stuffed;
+	// If it's the first coded timestamp, then it does no decoding, i.e decodes 
+	// as 'num1.num2' (as it is)
+	// Would store prevNum1 = num1 & prevNum2 = num2
 			if(first){ // The First Coded Time Stamp
         prevNum = getNextNum(input_file_);
         fprintf(output_file_,"%s",convert2str(prevNum));
