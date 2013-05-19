@@ -1,4 +1,4 @@
 HPC-Compression
 ===============
 
-High Performance Computing - Compression
+High Performance Computing - Compression (Coding/Decoding)
