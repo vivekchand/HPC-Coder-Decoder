@@ -5,10 +5,7 @@ High Performance Computing - Compression (Coding/Decoding)
 
 Compiling & Usage:
 ------------------
-make
-
-./coder timestamps
-
-./decoder coded_timestaps
-
+make <br>
+./coder timestamps <br>
+./decoder coded_timestaps <br>
 diff decoded_timestamps timestamps
