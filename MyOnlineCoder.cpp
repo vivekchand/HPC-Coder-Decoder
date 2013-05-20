@@ -55,6 +55,7 @@ class MyOnlineCoder
 		int bitPtr,bytePtr;
 		uint8_t buf[BUF_SZ];
 		
+		
 };
 
 // generate a sequence of l 1's
