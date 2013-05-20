@@ -23,8 +23,8 @@ class MyOnlineCoder
 		// convert timestamp into internal representaion and write to file
 		void codeNextTimestamp(char* tstamp_,FILE* output_file_);
 
-    // get binary length of the given number
-    int get_bin_length(long num);
+    		// get binary length of the given number
+    		int get_bin_length(long num);
 
 		// get avg bits
 		double get_avg_bits() {return (total_bits*1.0)/(iter_count*1.0);}
@@ -41,8 +41,8 @@ class MyOnlineCoder
 		// get current buffer
 		uint8_t get_curr_byte();
 	
-    // set 1s for the bit length of l
-    int set_1s_for(int l);
+    		// set 1s for the bit length of l
+    		int set_1s_for(int l);
 		
 		// Write remaining bytes if any
 		void write_rem(FILE *fp);	
@@ -138,11 +138,11 @@ void MyOnlineCoder::codeNextTimestamp(char* tstamp_,FILE* output_file_)
 
 	// If it's the first timestamp, then it does no coding, i.e codes 
 	// as 'num1.num2' (as it is!)
-  // Would store prevNum1 = num1 & prevNum2 = num2
+  	// Would store prevNum1 = num1 & prevNum2 = num2
 	if(prevNum==0){  // The First Time Stamp
 		int bits;
 		prevNum = num;
-    fwrite(&prevNum, sizeof(prevNum),1, output_file_);  
+    		fwrite(&prevNum, sizeof(prevNum),1, output_file_);  
 		no_of_bits=get_bin_length(prevNum);
 		// Write Data as it is for First TimeStamp
 	}	
@@ -156,14 +156,14 @@ void MyOnlineCoder::codeNextTimestamp(char* tstamp_,FILE* output_file_)
 			}
 			else
 			{
-	  	  uint8_t head1,head2;
+	  	  		uint8_t head1,head2;
 				head1 = get_curr_byte();
 			 	head1 |= header>>(bitPtr);
-		    head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
-			  write_to_buf(head1,true,output_file_);                
-			  write_to_buf(head2,false,output_file_);  
+		    		head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
+			  	write_to_buf(head1,true,output_file_);                
+			  	write_to_buf(head2,false,output_file_);  
 			}
-      no_of_bits = 1*8;
+      			no_of_bits = 1*8;
 	}
 	else // num != prevNum
 	{								
@@ -180,73 +180,74 @@ void MyOnlineCoder::codeNextTimestamp(char* tstamp_,FILE* output_file_)
 		{
 			write_to_buf(header,true,output_file_);
 			done = false;
-	    while(!done){
-		    uint8_t byte;
-    		if(len<8){
+	    		while(!done){
+		    		uint8_t byte;
+    				if(len<8){
 
-	       byte = ((data & set_1s_for(len))<<(8-len));
-	       write_to_buf(byte & 0xFF,false,output_file_);
-	       bitPtr = len;
-	       done = true;
-		    }
-		    else
-		    {
-	       byte = (data>>(len-8));
-		     write_to_buf(byte,true,output_file_);
-	       len = len-8;
-	      }
-	 	  }
+	       				byte = ((data & set_1s_for(len))<<(8-len));
+	       				write_to_buf(byte & 0xFF,false,output_file_);
+	       				bitPtr = len;
+	       				done = true;
+		    		}
+		    		else
+		    		{
+	       				byte = (data>>(len-8));
+		     			write_to_buf(byte,true,output_file_);
+	       				len = len-8;
+	      			}
+	 	  	}
 		}
 		else
-		{ // If bitPtr is not pointing to 0
-     uint8_t head1,head2;
-		 head1 = get_curr_byte();
-     head1 |= header>>(bitPtr);
-     head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
+		{ 		// If bitPtr is not pointing to 0
+     				uint8_t head1,head2;
+				head1 = get_curr_byte();
+     				head1 |= header>>(bitPtr);
+     				head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
 
-     write_to_buf(head1,true,output_file_); 
-     write_to_buf(head2,false,output_file_);
+     				write_to_buf(head1,true,output_file_); 
+     				write_to_buf(head2,false,output_file_);
 
-			done = false;
-			while(!done){
-	     if(len<8){
-  	      uint8_t byte,dat;
-	        if(len<=(8-bitPtr)){
-	          byte = data & set_1s_for(len);
-	          dat = get_curr_byte();
-	          dat |= byte<<(8-bitPtr-len);
+				done = false;
+				while(!done){
+	     				if(len<8){
+  	      					uint8_t byte,dat;
+	        				if(len<=(8-bitPtr)){
+	          					byte = data & set_1s_for(len);
+	          					dat = get_curr_byte();
+	          					dat |= byte<<(8-bitPtr-len);
 
-						if((bitPtr+len)%8==0)
-		          write_to_buf(dat & 0xFF,true,output_file_);
-						else
-		          write_to_buf(dat & 0xFF,false,output_file_);
+							if((bitPtr+len)%8==0)
+		          					write_to_buf(dat & 0xFF,true,output_file_);
+							else
+		          					write_to_buf(dat & 0xFF,false,output_file_);
 
-					  bitPtr = (bitPtr+len)%8;
-		      }
-	        else
-	        {
-	          byte = data & set_1s_for(len);
-	          dat = get_curr_byte();
+					  		bitPtr = (bitPtr+len)%8;
+		      				}
+	        				else
+	        				{	
+	          					byte = data & set_1s_for(len);
+	          					dat = get_curr_byte();
 
-						int	shift=bitPtr;
+							int	shift=bitPtr;
 
-	          dat |= byte>>(shift);
-	          write_to_buf(dat,true,output_file_);
-	          write_to_buf(((byte & set_1s_for(shift))<<(8-shift)),false,output_file_);
-	        }
-	        done = true;
-  	    }
-				else
-				{
-		        uint8_t byte,dat;
-		        byte = data>>(len-8);
-		        dat = get_curr_byte();
-		        dat |= byte>>(bitPtr);
-		        write_to_buf(dat,true,output_file_);
-		        write_to_buf((byte & set_1s_for(bitPtr))<<(8-bitPtr),false,output_file_);
-		        len = len-8;
+	          	
+	          					dat |= byte>>(shift);
+	          					write_to_buf(dat,true,output_file_);
+	          					write_to_buf(((byte & set_1s_for(shift))<<(8-shift)),false,output_file_);
+	        				}
+	        				done = true;
+  	    				}
+	    				else
+					{
+		        			uint8_t byte,dat;
+		        			byte = data>>(len-8);
+		        			dat = get_curr_byte();
+		        			dat |= byte>>(bitPtr);
+		        			write_to_buf(dat,true,output_file_);
+		        			write_to_buf((byte & set_1s_for(bitPtr))<<(8-bitPtr),false,output_file_);
+		        			len = len-8;
+					}
 				}
-			}
 		}
 		no_of_bits = total_len;
 	}
@@ -261,30 +262,30 @@ int main(int argc, char **argv)
     exit(-1);
    }
 
-	FILE *fp,*out_fp,*stats;
-	fp = fopen(argv[1],"r");
+  FILE *fp,*out_fp,*stats;
+  fp = fopen(argv[1],"r");
   if (fp == NULL) {
-		printf("Failed to open %s for reading.\n",argv[1]);
-    exit(0);
+    printf("Failed to open %s for reading.\n",argv[1]);
+    exit(-2);
   }
 
-	out_fp = fopen("coded_timestamps","wb");	
+  out_fp = fopen("coded_timestamps","wb");	
   if (out_fp == NULL) {
     printf("Failed to open %s for writing.\n","coded_timestamps");
-    exit(0);
+    exit(-3);
   }
 
   stats = fopen("statistics.txt","w");
   if (stats == NULL) {
     printf("Failed to open %s for writing.\n","statistics.txt");
-    exit(0);
+    exit(-4);
   }
 
 	MyOnlineCoder coder;
 	char *tstamp;
 
-  struct timeval startTime;
-  struct timeval endTime;
+  	struct timeval startTime;
+  	struct timeval endTime;
 	double tS,tE,time;
 	double total_time=0;
 	double t[451210];	
@@ -293,8 +294,8 @@ int main(int argc, char **argv)
 		gettimeofday(&startTime, NULL);   // get the start time
 			coder.codeNextTimestamp(tstamp,out_fp);
 		gettimeofday(&endTime, NULL);  // get the end time
-    tS = startTime.tv_sec*1000000 + (startTime.tv_usec);
-    tE = endTime.tv_sec*1000000  + (endTime.tv_usec);
+    		tS = startTime.tv_sec*1000000 + (startTime.tv_usec);
+    		tE = endTime.tv_sec*1000000  + (endTime.tv_usec);
 		time = tE - tS;
 		t[size]=time;
 		size++;
