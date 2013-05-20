@@ -10,3 +10,5 @@ make
 ./coder timestamps
 
 ./decoder coded_timestaps
+
+diff decoded_timestamps timestamps
