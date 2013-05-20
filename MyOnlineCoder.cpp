@@ -14,7 +14,7 @@ class MyOnlineCoder
 {
 	public:
 		MyOnlineCoder(){ prevNum=0; iter_count=0; total_bits=0; bitPtr=0; bytePtr=0; 
-										 memset(buf,0,BUF_SZ);
+									   memset(buf,0,BUF_SZ);
 									 }
 
 		// read next timestamp from input file and return as char*
