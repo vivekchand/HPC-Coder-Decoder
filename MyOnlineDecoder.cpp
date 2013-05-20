@@ -154,107 +154,108 @@ void MyOnlineDecoder::parseAndDecode(FILE* input_file_,FILE* output_file_){
 	int l1,l2;
 	int num1,num2;
 	int x;
-  while(1){ 
-	if(count>=SIZE)
-		break;
-	count++;
-	gettimeofday(&startTime, NULL);   // get the start time
-	char *stuffed;
-	// If it's the first coded timestamp, then it does no decoding, i.e decodes 
-	// as 'num1.num2' (as it is)
-	// Would store prevNum1 = num1 & prevNum2 = num2
-			if(first){ // The First Coded Time Stamp
-        prevNum = getNextNum(input_file_);
-        fprintf(output_file_,"%s",convert2str(prevNum));
-        first = 0;
-				fread(buf,BUF_SZ,1,input_file_);
-			}  
-			else { 
-				x = getCodeType(input_file_);
-				int type,len;
-		    type = x>>7;
-		    len = x & 0x7F;
-				if(type==0){ 
-        	fprintf(output_file_,"%s",convert2str(prevNum));
-				} 
-				else if(type==1){ 
-					int diff;
-			    unsigned int data=0;
-			    bool done;
-					if(bitPtr==0)
-					{ 
-						done = false;
-				    while(!done){ 
-							uint8_t byte=0;
-				      if(len<8){ 
-								read_frm_buf(&byte,false,input_file_);
-				        data |= byte>>(8-len);
-				        bitPtr = len;
-				        done = true;
-				      } 
-				      else
-	     				{ 		
-								read_frm_buf(&byte,true,input_file_);
-		 			      data |= byte<<(len-8);
-  	      			len = len-8;
-    	  			} 
-    				}	
-					} 
-					else 
-					{	data = 0; 
-						done = false;
-						while(!done){ 
-				     if(len<8){
-			         	uint8_t byte,dat;
-			         	if(len<=(8-bitPtr)){
-
-									if((bitPtr+len)%8==0)
-			            	read_frm_buf(&dat,true,input_file_);
-									else
-			            	read_frm_buf(&dat,false,input_file_);
-	
-		            	byte = dat>>(8-bitPtr-len) & set_1s_for(len);
-		            	bitPtr = (bitPtr+len)%8;
-		            	data |= byte;
-		          	}
-		          	else
-		          	{
-		           	 	uint8_t byte1,byte2;
-		            	read_frm_buf(&byte1,true,input_file_);
-		            	read_frm_buf(&byte2,false,input_file_);
-
-									int shift = (bitPtr);
-
-		            	byte = (byte1 & set_1s_for(8-shift))<<(shift) | byte2>>(8-shift);
-		            	data |= byte;
-		          	}
-		          	done = true;
-    			   	}
-							else
-							{ 
-			          uint8_t byte1,byte2,byte;
-			          read_frm_buf(&byte1,true,input_file_);
-			          read_frm_buf(&byte2,false,input_file_);
-			          byte = byte1<<(bitPtr) | byte2>>(8-bitPtr);
-			          data |= byte<<(len-8);
-			          len = len-8;
-							} 
-						} 
-					} 
-					diff = data;
-					prevNum = prevNum + diff;
-        	fprintf(output_file_,"%s",convert2str(prevNum));
-				} 	
+  	while(1){ 
+		if(count>=SIZE)
+			break;
+		count++;
+		gettimeofday(&startTime, NULL);   // get the start time
+		char *stuffed;
+		// If it's the first coded timestamp, then it does no decoding, i.e decodes 
+		// as 'num1.num2' (as it is)
+		// Would store prevNum1 = num1 & prevNum2 = num2
+		if(first){ // The First Coded Time Stamp
+        		prevNum = getNextNum(input_file_);
+        		fprintf(output_file_,"%s",convert2str(prevNum));
+        		first = 0;
+			fread(buf,BUF_SZ,1,input_file_);
+		}  
+		else { 
+			x = getCodeType(input_file_);
+			int type,len;
+			type = x>>7;
+			len = x & 0x7F;
+			if(type==0){ 
+	        		fprintf(output_file_,"%s",convert2str(prevNum));
 			} 
-			fprintf(output_file_,"\n");
-			gettimeofday(&endTime, NULL);  // get the end time
-		  tS = startTime.tv_sec*1000000 + (startTime.tv_usec);
-	    tE = endTime.tv_sec*1000000  + (endTime.tv_usec);
-  	  time = tE - tS;
-			t[size]=time;
-			size++;
-  	  total_time += time;
-		} 
+			else if(type==1){ 
+				int diff;
+				unsigned int data=0;
+				bool done;
+				if(bitPtr==0)
+				{ 
+					done = false;
+					while(!done){ 
+						uint8_t byte=0;
+					        if(len<8){ 
+							read_frm_buf(&byte,false,input_file_);
+					        	data |= byte>>(8-len);
+					        	bitPtr = len;
+					        	done = true;
+					       } 
+					       else
+		     			       { 		
+							read_frm_buf(&byte,true,input_file_);
+			 			      	data |= byte<<(len-8);
+	  	      					len = len-8;
+	    	  				}	 
+    					}// end while	
+				} 
+				else 
+				{	
+					data = 0; 
+					done = false;
+					while(!done){ 
+					        if(len<8)
+					        {
+					         	uint8_t byte,dat;
+					         	if(len<=(8-bitPtr)){
+								if((bitPtr+len)%8==0)
+					            			read_frm_buf(&dat,true,input_file_);
+								else
+					            			read_frm_buf(&dat,false,input_file_);
+			
+				            			byte = dat>>(8-bitPtr-len) & set_1s_for(len);
+				            			bitPtr = (bitPtr+len)%8;
+				            			data |= byte;
+				          		}
+				          		else
+				          		{
+				           	 		uint8_t byte1,byte2;
+				            			read_frm_buf(&byte1,true,input_file_);
+				            			read_frm_buf(&byte2,false,input_file_);
+		
+								int shift = (bitPtr);
+		
+				            			byte = (byte1 & set_1s_for(8-shift))<<(shift) | byte2>>(8-shift);
+				            			data |= byte;
+				          		}
+				          		done = true;
+	    			   		}
+						else
+						{ 
+					          	uint8_t byte1,byte2,byte;
+					          	read_frm_buf(&byte1,true,input_file_);
+					          	read_frm_buf(&byte2,false,input_file_);
+					          	byte = byte1<<(bitPtr) | byte2>>(8-bitPtr);
+					          	data |= byte<<(len-8);
+					          	len = len-8;
+						} 
+					} // end while 
+				} 
+				diff = data;
+				prevNum = prevNum + diff;
+        			fprintf(output_file_,"%s",convert2str(prevNum));
+		} 	
+  	} 
+  	fprintf(output_file_,"\n");
+  	gettimeofday(&endTime, NULL);  // get the end time
+	tS = startTime.tv_sec*1000000 + (startTime.tv_usec);
+	tE = endTime.tv_sec*1000000  + (endTime.tv_usec);
+	time = tE - tS;
+	t[size]=time;
+	size++;
+	total_time += time;
+ 	} 
 }
 
 int main(int argc, char **argv)
@@ -288,10 +289,10 @@ int main(int argc, char **argv)
 	MyOnlineDecoder decoder;	
 	decoder.parseAndDecode(fp,out_fp);
 
-  fprintf(stats,"\n ---- DECOMPRESSION STATISTICS --- ");
+  	fprintf(stats,"\n ---- DECOMPRESSION STATISTICS --- ");
 	fprintf(stats,"\nAvg time to decompress in usecs: %.0lf",decoder.get_avg_time());
-  fprintf(stats,"\nMean:  %.0lf",decoder.get_mean());
-  fprintf(stats,"\nStandard Deviation:  %.0lf\n",decoder.get_std_dev());
+  	fprintf(stats,"\nMean:  %.0lf",decoder.get_mean());
+  	fprintf(stats,"\nStandard Deviation:  %.0lf\n",decoder.get_std_dev());
 
 	fclose(fp);
 	fclose(out_fp);
