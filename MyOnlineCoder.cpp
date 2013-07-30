@@ -1,7 +1,7 @@
 //  The Coding Algorithm works by coding only the difference of the current value to it's previous value.
 //  It breaks the timestamp into two parts,
-//      Say we have timestamp val: 1364281200.078739
-//      We break down into: num1 = 1364281200 & num2 = 078739
+//       Say we have timestamp val: 1364281200.078739
+//       We break down into: num1 = 1364281200 & num2 = 078739
 #include"config.h"
 #include<stdio.h>
 #include<stdlib.h>
