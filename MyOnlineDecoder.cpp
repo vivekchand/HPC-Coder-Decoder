@@ -19,7 +19,14 @@ class MyOnlineDecoder
 {
     public:
 
-        MyOnlineDecoder(){count=0; total_time=0; size=0; bitPtr=0; bytePtr=0; memset(buf,0,BUF_SZ); }
+        MyOnlineDecoder(){
+            count=0; 
+            total_time=0; 
+            size=0; 
+            bitPtr=0; 
+            bytePtr=0; 
+            memset(buf,0,BUF_SZ); 
+        }
         // parse input file and decode - this function should
         // incrementally decode and write every new timestamp
         // to output file
@@ -48,13 +55,13 @@ class MyOnlineDecoder
         // Read from buf
         void read_frm_buf(uint8_t *data,bool incr,FILE* fp);
 
-            // set 1s for the bit length of l
-            int set_1s_for(int l);
+        // set 1s for the bit length of l
+        int set_1s_for(int l);
 
 
     private:
         int count;
-            long long prevNum;
+        long long prevNum;
         int num2_len;
         struct timeval startTime;
         struct timeval endTime;
@@ -64,8 +71,8 @@ class MyOnlineDecoder
         double t[SIZE];
         long size;
 
-            int bitPtr,bytePtr;
-            uint8_t buf[BUF_SZ];
+        int bitPtr,bytePtr;
+        uint8_t buf[BUF_SZ];
 
 };
 
@@ -209,25 +216,25 @@ void MyOnlineDecoder::parseAndDecode(FILE* input_file_,FILE* output_file_){
                             {
                                 uint8_t byte,dat;
                                 if(len<=(8-bitPtr)){
-                                if((bitPtr+len)%8==0)
-                                            read_frm_buf(&dat,true,input_file_);
-                                else
-                                            read_frm_buf(&dat,false,input_file_);
-            
-                                        byte = dat>>(8-bitPtr-len) & set_1s_for(len);
-                                        bitPtr = (bitPtr+len)%8;
-                                        data |= byte;
+                                    if((bitPtr+len)%8==0)
+                                        read_frm_buf(&dat,true,input_file_);
+                                    else
+                                        read_frm_buf(&dat,false,input_file_);
+                
+                                    byte = dat>>(8-bitPtr-len) & set_1s_for(len);
+                                    bitPtr = (bitPtr+len)%8;
+                                    data |= byte;
                                 }
                                 else
                                 {
                                     uint8_t byte1,byte2;
-                                        read_frm_buf(&byte1,true,input_file_);
-                                        read_frm_buf(&byte2,false,input_file_);
+                                    read_frm_buf(&byte1,true,input_file_);
+                                    read_frm_buf(&byte2,false,input_file_);
         
-                                int shift = (bitPtr);
+                                    int shift = (bitPtr);
         
-                                        byte = (byte1 & set_1s_for(8-shift))<<(shift) | byte2>>(8-shift);
-                                        data |= byte;
+                                    byte = (byte1 & set_1s_for(8-shift))<<(shift) | byte2>>(8-shift);
+                                    data |= byte;
                                 }
                                 done = true;
                             }
@@ -244,7 +251,7 @@ void MyOnlineDecoder::parseAndDecode(FILE* input_file_,FILE* output_file_){
                 } 
                 diff = data;
                 prevNum = prevNum + diff;
-                    fprintf(output_file_,"%s",convert2str(prevNum));
+                fprintf(output_file_,"%s",convert2str(prevNum));
         }   
     } 
     fprintf(output_file_,"\n");
@@ -284,18 +291,16 @@ int main(int argc, char **argv)
     exit(0);
   }
 
+  MyOnlineDecoder decoder;    
+  decoder.parseAndDecode(fp,out_fp);
 
+  fprintf(stats,"\n ---- DECOMPRESSION STATISTICS --- ");
+  fprintf(stats,"\nAvg time to decompress in usecs: %.0lf",decoder.get_avg_time());
+  fprintf(stats,"\nMean:  %.0lf",decoder.get_mean());
+  fprintf(stats,"\nStandard Deviation:  %.0lf\n",decoder.get_std_dev());
 
-    MyOnlineDecoder decoder;    
-    decoder.parseAndDecode(fp,out_fp);
-
-    fprintf(stats,"\n ---- DECOMPRESSION STATISTICS --- ");
-    fprintf(stats,"\nAvg time to decompress in usecs: %.0lf",decoder.get_avg_time());
-    fprintf(stats,"\nMean:  %.0lf",decoder.get_mean());
-    fprintf(stats,"\nStandard Deviation:  %.0lf\n",decoder.get_std_dev());
-
-    fclose(fp);
-    fclose(out_fp);
-    fclose(stats);
-    return 0;   
+  fclose(fp);
+  fclose(out_fp);
+  fclose(stats);
+  return 0;   
 }

@@ -13,9 +13,13 @@
 class MyOnlineCoder
 {
     public:
-        MyOnlineCoder(){ prevNum=0; iter_count=0; total_bits=0; bitPtr=0; bytePtr=0; 
-                                       memset(buf,0,BUF_SZ);
-                                     }
+        MyOnlineCoder() { 
+            prevNum=0; 
+            iter_count=0; 
+            total_bits=0; 
+            bitPtr=0; bytePtr=0; 
+            memset(buf,0,BUF_SZ);
+        }
 
         // read next timestamp from input file and return as char*
         char* getNextLine(FILE* fp);
@@ -23,8 +27,8 @@ class MyOnlineCoder
         // convert timestamp into internal representaion and write to file
         void codeNextTimestamp(char* tstamp_,FILE* output_file_);
 
-            // get binary length of the given number
-            int get_bin_length(long num);
+        // get binary length of the given number
+        int get_bin_length(long num);
 
         // get avg bits
         double get_avg_bits() {return (total_bits*1.0)/(iter_count*1.0);}
@@ -41,20 +45,18 @@ class MyOnlineCoder
         // get current buffer
         uint8_t get_curr_byte();
 
-            // set 1s for the bit length of l
-            int set_1s_for(int l);
+        // set 1s for the bit length of l
+        int set_1s_for(int l);
 
         // Write remaining bytes if any
         void write_rem(FILE *fp);   
     private:
+
         long long prevNum;
         int iter_count; 
         long long total_bits;
-
-
         int bitPtr,bytePtr;
         uint8_t buf[BUF_SZ];
-
 
 };
 
@@ -73,36 +75,36 @@ uint8_t MyOnlineCoder::get_curr_byte()
 
 void MyOnlineCoder::write_to_buf(uint8_t data,bool incr,FILE *fp)
 {
-  buf[bytePtr] = data;
+    buf[bytePtr] = data;
 
-  if(incr==true)
-    bytePtr++;
-  if(bytePtr==BUF_SZ){
-    fwrite(buf,BUF_SZ,1,fp);
-    memset(buf,0,BUF_SZ);
-    bytePtr=0;
-  }
+    if(incr==true)
+        bytePtr++;
+    if(bytePtr==BUF_SZ){
+        fwrite(buf,BUF_SZ,1,fp);
+        memset(buf,0,BUF_SZ);
+        bytePtr=0;
+    }
 }
 
 
 long long MyOnlineCoder::convert2ll(char *tstamp_){
-  int i,j=0;
-  long long num;
-  for(i=0;i<strlen(tstamp_);j++)
-  {
-    if(tstamp_[j]=='.')
-      continue;
-    tstamp_[i++] = tstamp_[j];
-  }
-  sscanf(tstamp_,"%lld",&num);
-  return num;
+    int i,j=0;
+    long long num;
+    for(i=0;i<strlen(tstamp_);j++)
+    {
+        if(tstamp_[j]=='.')
+            continue;
+        tstamp_[i++] = tstamp_[j];
+    }
+    sscanf(tstamp_,"%lld",&num);
+    return num;
 }
 
 char* MyOnlineCoder::getNextLine(FILE* fp)
 {
-  char * line = NULL;
+    char * line = NULL;
     size_t len = 0;
-  ssize_t read;
+    ssize_t read;
 
     if(getline(&line, &len, fp)==-1)
         return NULL;
@@ -112,19 +114,19 @@ char* MyOnlineCoder::getNextLine(FILE* fp)
 
 void MyOnlineCoder::write_rem(FILE *fp)
 {
-        // Write remaining bytes if any!
+    // Write remaining bytes if any!
     fwrite(buf,bytePtr,1,fp);
 }
 
 
 // get binary length of the number
 int MyOnlineCoder::get_bin_length(long num){
-  int count=0;
-  while(num!=0){
-    count++;
-    num/=2;
-  }
-  return count;
+    int count=0;
+    while(num!=0){
+        count++;
+        num/=2;
+    }
+    return count;
 }
 
 // code the Next TimeStamp
@@ -142,28 +144,28 @@ void MyOnlineCoder::codeNextTimestamp(char* tstamp_,FILE* output_file_)
     if(prevNum==0){  // The First Time Stamp
         int bits;
         prevNum = num;
-            fwrite(&prevNum, sizeof(prevNum),1, output_file_);  
+        fwrite(&prevNum, sizeof(prevNum),1, output_file_);  
         no_of_bits=get_bin_length(prevNum);
         // Write Data as it is for First TimeStamp
     }   
     else if(num==prevNum){
-            int type = 0;
-            int len = 0;
-            unsigned int header = type<<7|len;
-            if(bitPtr==0)
-            {
-                write_to_buf(header,true,output_file_);
-            }
-            else
-            {
-                uint8_t head1,head2;
-                head1 = get_curr_byte();
-                head1 |= header>>(bitPtr);
-                    head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
-                write_to_buf(head1,true,output_file_);                
-                write_to_buf(head2,false,output_file_);  
-            }
-                no_of_bits = 1*8;
+        int type = 0;
+        int len = 0;
+        unsigned int header = type<<7|len;
+        if(bitPtr==0)
+        {
+            write_to_buf(header,true,output_file_);
+        }
+        else
+        {
+            uint8_t head1,head2;
+            head1 = get_curr_byte();
+            head1 |= header>>(bitPtr);
+            head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
+            write_to_buf(head1,true,output_file_);                
+            write_to_buf(head2,false,output_file_);  
+        }
+        no_of_bits = 1*8;
     }
     else // num != prevNum
     {                               
@@ -180,74 +182,73 @@ void MyOnlineCoder::codeNextTimestamp(char* tstamp_,FILE* output_file_)
         {
             write_to_buf(header,true,output_file_);
             done = false;
-                while(!done){
-                    uint8_t byte;
-                    if(len<8){
+            while(!done){
+                uint8_t byte;
+                if(len<8){
 
-                        byte = ((data & set_1s_for(len))<<(8-len));
-                        write_to_buf(byte & 0xFF,false,output_file_);
-                        bitPtr = len;
-                        done = true;
-                    }
-                    else
-                    {
-                        byte = (data>>(len-8));
-                        write_to_buf(byte,true,output_file_);
-                        len = len-8;
-                    }
+                    byte = ((data & set_1s_for(len))<<(8-len));
+                    write_to_buf(byte & 0xFF,false,output_file_);
+                    bitPtr = len;
+                    done = true;
+                }
+                else
+                {
+                    byte = (data>>(len-8));
+                    write_to_buf(byte,true,output_file_);
+                    len = len-8;
+                }
             }
         }
         else
-        {       // If bitPtr is not pointing to 0
-                    uint8_t head1,head2;
-                head1 = get_curr_byte();
-                    head1 |= header>>(bitPtr);
-                    head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
+        {   // If bitPtr is not pointing to 0
+            uint8_t head1,head2;
+            head1 = get_curr_byte();
+            head1 |= header>>(bitPtr);
+            head2 = (header & set_1s_for(bitPtr))<<(8-bitPtr);
 
-                    write_to_buf(head1,true,output_file_); 
-                    write_to_buf(head2,false,output_file_);
+            write_to_buf(head1,true,output_file_); 
+            write_to_buf(head2,false,output_file_);
 
-                done = false;
-                while(!done){
-                        if(len<8){
-                            uint8_t byte,dat;
-                            if(len<=(8-bitPtr)){
-                                byte = data & set_1s_for(len);
-                                dat = get_curr_byte();
-                                dat |= byte<<(8-bitPtr-len);
+            done = false;
+            while(!done){
+                if(len<8){
+                    uint8_t byte,dat;
+                    if(len<=(8-bitPtr)){
+                        byte = data & set_1s_for(len);
+                        dat = get_curr_byte();
+                        dat |= byte<<(8-bitPtr-len);
 
-                            if((bitPtr+len)%8==0)
-                                    write_to_buf(dat & 0xFF,true,output_file_);
-                            else
-                                    write_to_buf(dat & 0xFF,false,output_file_);
-
-                            bitPtr = (bitPtr+len)%8;
-                            }
-                            else
-                            {   
-                                byte = data & set_1s_for(len);
-                                dat = get_curr_byte();
-
-                            int shift=bitPtr;
-
-
-                                dat |= byte>>(shift);
-                                write_to_buf(dat,true,output_file_);
-                                write_to_buf(((byte & set_1s_for(shift))<<(8-shift)),false,output_file_);
-                            }
-                            done = true;
-                        }
+                        if((bitPtr+len)%8==0)
+                            write_to_buf(dat & 0xFF,true,output_file_);
                         else
-                    {
-                            uint8_t byte,dat;
-                            byte = data>>(len-8);
-                            dat = get_curr_byte();
-                            dat |= byte>>(bitPtr);
-                            write_to_buf(dat,true,output_file_);
-                            write_to_buf((byte & set_1s_for(bitPtr))<<(8-bitPtr),false,output_file_);
-                            len = len-8;
+                            write_to_buf(dat & 0xFF,false,output_file_);
+
+                        bitPtr = (bitPtr+len)%8;
                     }
+                    else
+                    {   
+                        byte = data & set_1s_for(len);
+                        dat = get_curr_byte();
+
+                        int shift=bitPtr;
+
+                        dat |= byte>>(shift);
+                        write_to_buf(dat,true,output_file_);
+                        write_to_buf(((byte & set_1s_for(shift))<<(8-shift)),false,output_file_);
+                    }
+                    done = true;
                 }
+                else
+                {
+                    uint8_t byte,dat;
+                    byte = data>>(len-8);
+                    dat = get_curr_byte();
+                    dat |= byte>>(bitPtr);
+                    write_to_buf(dat,true,output_file_);
+                    write_to_buf((byte & set_1s_for(bitPtr))<<(8-bitPtr),false,output_file_);
+                    len = len-8;
+                }
+            }
         }
         no_of_bits = total_len;
     }
